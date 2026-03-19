@@ -262,20 +262,7 @@ The geo system uses **ISO 3166-1 Alpha-2** country codes and automatically route
 | `FR` | France |
 | `NL` | Netherlands |
 | `PL` | Poland |
-| *(all ISO 3166-1 codes)* | *Extendable via `servers.yml`* |
-
-### Routing Logic
-
-```
-Player types /rtp
-       │
-       ▼
-Location known?
-   ├── YES → Find server with matching location code
-   │          ├── Found?     → Teleport to random position on that server
-   │          └── Not found? → Use fallback server from config.yml
-   └── NO  → Use fallback server
-```
+| *(all ISO 3166-1 codes)* |
 
 > **Tip:** Players can set their region manually with `/location <code>`, or admins can override it with `/vrtplink changelocation <player> <code>`.
 
@@ -289,7 +276,6 @@ Location known?
 Check the following:
 1. Port `25577` is open in your firewall
 2. The same port is set in `config.yml` on **both** Velocity and the helper config
-3. Backend servers are fully started before Velocity connects
 
 </details>
 
