@@ -289,7 +289,7 @@ Review your `servers.yml` — make sure multiple servers are configured and that
 <details>
 <summary><strong>Commands are not recognized</strong></summary>
 
-After changing aliases in `config.yml`, run `/vrtplink reload` or perform a full proxy restart for changes to take effect.
+After changing aliases in `config.yml`, perform a full proxy restart for changes to take effect.
 
 </details>
 
