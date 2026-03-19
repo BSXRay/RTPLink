@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>bsx.de</groupId>
-    <artifactId>RTBLink</artifactId>
+    <artifactId>RTPLink</artifactId>
     <version>1.21.11</version>
     <packaging>pom</packaging>
 
-    <name>RTBLink</name>
+    <name>RTPLink</name>
 
     <modules>
         <module>velocity</module>

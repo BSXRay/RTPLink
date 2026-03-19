@@ -1,0 +1,8 @@
+{
+  "id": "rtplink",
+  "name": "RTPLink",
+  "version": "1.21.11",
+  "description": "Random Teleport System for Velocity Proxy",
+  "authors": ["bsxray"],
+  "main": "bsx.de.rtplink.RTPLink"
+}
