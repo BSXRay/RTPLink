@@ -148,28 +148,34 @@ aliases:
 ### `servers.yml` — Geo-Location Mapping
 
 ```yaml
-# ──────────────────────────────────────────────
-#  Server Geo-Location Configuration
-# ──────────────────────────────────────────────
+# RTPLink Server Configuration
+# Auto-generated - server entries are created when helpers connect
+#
+# location options:
+#   "DE"        - Nur deutsche Spieler
+#   "!DE"       - Alle außer deutsche Spieler
+#   "DE,AT,CH"  - Deutsch, Österreich, Schweiz
+#   ""          - Alle Spieler (kein Filter)
 
 servers:
-  survival-eu:
-    location: DE         # ISO 3166-1 Alpha-2 code
-    display_name: "EU Survival"
-    priority: 1          # Higher = preferred when region matches
-
-  survival-us:
-    location: US
-    display_name: "US Survival"
-    priority: 1
-
-  survival-gb:
-    location: GB
-    display_name: "UK Survival"
-    priority: 2
-
-# Fallback if no matching region is found
-fallback_server: survival-eu
+  smp-en:
+    enabled: true
+    weight: 1
+    location: ""
+    world: "world"
+    min-x: -1000
+    max-x: 1000
+    min-z: -1000
+    max-z: 1000
+  smp-de:
+    enabled: true
+    weight: 1
+    location: ""
+    world: "world"
+    min-x: -1000
+    max-x: 1000
+    min-z: -1000
+    max-z: 1000
 ```
 
 ---
