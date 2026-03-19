@@ -1,0 +1,15 @@
+# RTPLink Helper Configuration
+
+velocity:
+  host: "127.0.0.1"
+  # Port that the proxy plugin is listening on (must match proxy config, default: 25577)
+  port: 25577
+
+# Server name that will be registered with Velocity
+server-name: "default"
+
+# Seconds to wait between reconnection attempts
+reconnect-delay: 5
+
+# Enable debug logging (default: false)
+debug: false

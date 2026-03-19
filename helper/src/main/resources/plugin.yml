@@ -1,0 +1,7 @@
+name: RTPLink-Helper
+version: '${project.version}'
+main: bsx.de.rtplink.RTPLinkHelper
+api-version: '1.21'
+authors:
+  - bsxray
+description: Helper plugin for RTPLink RTP system

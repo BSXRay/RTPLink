@@ -1,0 +1,10 @@
+# RTPLink Server Configuration
+# Auto-generated - server entries are created when helpers connect
+#
+# location options:
+#   "DE"        - Nur deutsche Spieler
+#   "!DE"       - Alle außer deutsche Spieler
+#   "DE,AT,CH"  - Deutsch, Österreich, Schweiz
+#   ""          - Alle Spieler (kein Filter)
+
+servers:
