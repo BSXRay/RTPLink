@@ -104,30 +104,45 @@ cp rtplink-helper-*.jar /path/to/server/plugins/
 ### `config.yml` — Main Configuration
 
 ```yaml
-# ──────────────────────────────────────────────
-#  RTPLink Configuration
-#  Velocity Plugin v1.21.1
-# ──────────────────────────────────────────────
+# RTPLink Configuration
+# Main settings for the Random Teleport system
 
-tcp:
-  port: 25577          # TCP port for backend communication
-  timeout: 5000        # Connection timeout in ms
+rtp:
+  world: "world"
+  min-x: -1000
+  max-x: 1000
+  min-z: -1000
+  max-z: 1000
 
-# Command Aliases
+# Override server-specific settings with config.yml values on reload
+# true  = config.yml settings are applied to all servers on /vrtplink reload
+# false = config.yml is only a template, servers.yml keeps its own values
+override-existing: true
+
+# Enable geo-location based server selection
+geo-enabled: true
+
+# Debug mode - enables verbose logging
+debug: false
+
+# Port for Helper plugin connections (default: 25577)
+port: 25577
+
+# Command aliases - define which commands are registered
+# Format: commandname: [alias1, alias2, ...]
+# Example: tpa: [tpr] -> registers only /tpr (replaces /tpa)
+# Example: tpa: [tpa, tpr] -> registers /tpa and /tpr
 aliases:
-  rtp:    [rtp, wild]
-  tpa:    [tpr, teleportrequest]
-  home:   [home, h]
-  visit:  [visit, v]
-
-# Cooldowns (in seconds)
-cooldowns:
-  rtp:    300          # 5 minutes between RTP uses
-  tpa:    30           # 30s between TPA requests
-
-# Homes
-homes:
-  max_per_player: 5    # Maximum homes per player
+  vrtplink: [vrtplink]
+  rtp: [rtp]
+  sethome: [sethome]
+  home: [home]
+  delhome: [delhome]
+  tpa: [tpa]
+  tpaaccept: [tpaaccept]
+  tpadecline: [tpadecline]
+  visit: [visit]
+  location: [location]
 ```
 
 ### `servers.yml` — Geo-Location Mapping
