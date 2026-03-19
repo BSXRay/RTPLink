@@ -31,6 +31,7 @@ public class RTPLinkHelper extends JavaPlugin {
     private String velocityHost = "127.0.0.1";
     private int velocityPort = 25577;
     private int reconnectDelay = 5;
+    private int pingInterval = 30;
     private Socket socket;
     private PrintWriter writer;
     private BufferedReader reader;
@@ -59,6 +60,10 @@ public class RTPLinkHelper extends JavaPlugin {
     public void onDisable() {
         connected = false;
         reconnecting.set(false);
+        
+        if (heartbeatTask != null) {
+            heartbeatTask.cancel(false);
+        }
         
         if (reconnectTask != null) {
             reconnectTask.cancel(false);
@@ -112,6 +117,9 @@ public class RTPLinkHelper extends JavaPlugin {
             getLogger().info("Connecting to Velocity at " + velocityHost + ":" + velocityPort + "...");
             
             socket = new Socket(velocityHost, velocityPort);
+            socket.setKeepAlive(true);
+            socket.setTcpNoDelay(true);
+            
             writer = new PrintWriter(socket.getOutputStream(), true);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             
@@ -124,6 +132,7 @@ public class RTPLinkHelper extends JavaPlugin {
                 getLogger().info("Successfully connected to Velocity!");
                 
                 new Thread(this::listenForPackets).start();
+                startHeartbeat(pingInterval);
             } else {
                 getLogger().warning("Unexpected response from Velocity: " + response);
                 socket.close();
@@ -134,6 +143,27 @@ public class RTPLinkHelper extends JavaPlugin {
             closeSocket();
             scheduleReconnect();
         }
+    }
+
+    private ScheduledFuture<?> heartbeatTask;
+
+    private void startHeartbeat(int intervalSeconds) {
+        if (heartbeatTask != null) {
+            heartbeatTask.cancel(false);
+        }
+        heartbeatTask = scheduler.scheduleAtFixedRate(() -> {
+            if (connected && writer != null) {
+                try {
+                    writer.println("PING");
+                    writer.flush();
+                    debugLog("Sent PING to Velocity");
+                } catch (Exception e) {
+                    getLogger().warning("Heartbeat failed: " + e.getMessage());
+                    closeSocket();
+                    scheduleReconnect();
+                }
+            }
+        }, intervalSeconds, intervalSeconds, TimeUnit.SECONDS);
     }
 
     private void closeSocket() {
@@ -213,8 +243,19 @@ public class RTPLinkHelper extends JavaPlugin {
             getLogger().info("Received RELOAD command from Velocity");
             loadConfig();
             getLogger().info("Config reloaded!");
-        } else if (line.startsWith("PONG:")) {
-            getLogger().fine("Received PONG from Velocity");
+        } else if (line.startsWith("PINGINTERVAL:")) {
+            try {
+                int newInterval = Integer.parseInt(line.substring(13).trim());
+                if (newInterval > 0) {
+                    pingInterval = newInterval;
+                    startHeartbeat(pingInterval);
+                    getLogger().info("Updated ping interval to " + pingInterval + "s");
+                }
+            } catch (NumberFormatException e) {
+                getLogger().warning("Invalid PINGINTERVAL: " + line);
+            }
+        } else if (line.startsWith("PONG")) {
+            debugLog("Received PONG from Velocity");
         } else {
             getLogger().warning("Unknown message type: " + line);
         }
