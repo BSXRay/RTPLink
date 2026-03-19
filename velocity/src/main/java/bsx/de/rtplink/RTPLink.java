@@ -44,6 +44,7 @@ public class RTPLink implements Runnable {
     private boolean debug = false;
     private boolean geoEnabled = true;
     private boolean overrideExisting = true;
+    private int pingInterval = 30;
     private ServerSocket serverSocket;
     private final Map<String, Socket> connectedServers = new ConcurrentHashMap<>();
     private final Map<String, PrintWriter> serverWriters = new ConcurrentHashMap<>();
@@ -89,6 +90,7 @@ public class RTPLink implements Runnable {
         logger.info("   RTPLink v1.21.11 enabled!");
         logger.info("   Listening on port: {}", port);
         logger.info("   Debug mode: {}", debug);
+        logger.info("   Ping interval: {}s", pingInterval);
         logger.info("   Default world: {}", defaultConfig.world);
         logger.info("   Configured servers: {}", serverConfigs.size());
         logger.info("========================================");
@@ -166,6 +168,11 @@ public class RTPLink implements Runnable {
                 out.println("REGISTERED");
                 out.flush();
                 
+                if (pingInterval > 0) {
+                    out.println("PINGINTERVAL:" + pingInterval);
+                    out.flush();
+                }
+                
                 logger.info("[RTPLink] Server '{}' connected", serverName);
                 
                 if (debug) {
@@ -186,7 +193,7 @@ public class RTPLink implements Runnable {
                             String msg = in.readLine();
                             if (msg == null) break;
                             
-                            if (msg.startsWith("PONG:")) {
+                            if (msg.startsWith("PONG")) {
                                 debugLog("Received PONG from {}", serverName);
                             } else if (msg.startsWith("SETHOME:")) {
                                 handleSetHome(serverName, msg.substring(8));
@@ -457,6 +464,10 @@ public class RTPLink implements Runnable {
                     # Port for Helper plugin connections (default: 25577)
                     port: 25577
 
+                    # Heartbeat ping interval in seconds (default: 30)
+                    # Helpers will ping the proxy at this interval to detect dead connections
+                    ping-interval: 30
+
                     # Command aliases - define which commands are registered
                     # Format: commandname: [alias1, alias2, ...]
                     # Example: tpa: [tpr] -> registers only /tpr (replaces /tpa)
@@ -504,6 +515,8 @@ public class RTPLink implements Runnable {
                 cfg.geoEnabled = Boolean.parseBoolean(line.substring("geo-enabled:".length()).trim());
             } else if (line.startsWith("override-existing:")) {
                 cfg.overrideExisting = Boolean.parseBoolean(line.substring("override-existing:".length()).trim());
+            } else if (line.startsWith("ping-interval:")) {
+                pingInterval = Integer.parseInt(line.substring("ping-interval:".length()).trim());
             } else if (line.startsWith("world:")) {
                 cfg.world = line.substring("world:".length()).trim().replace("\"", "").replace("'", "");
             } else if (line.startsWith("min-x:")) {
@@ -810,7 +823,22 @@ public class RTPLink implements Runnable {
         if (messageManager != null) {
             messageManager.loadMessages();
         }
+        broadcastPingInterval();
         debugLog("Configs and messages reloaded");
+    }
+
+    private void broadcastPingInterval() {
+        if (pingInterval > 0) {
+            for (Map.Entry<String, PrintWriter> entry : serverWriters.entrySet()) {
+                try {
+                    entry.getValue().println("PINGINTERVAL:" + pingInterval);
+                    entry.getValue().flush();
+                    debugLog("Sent PINGINTERVAL to {}", entry.getKey());
+                } catch (Exception e) {
+                    logger.warn("Failed to send PINGINTERVAL to server: " + entry.getKey());
+                }
+            }
+        }
     }
     
     private void applyConfigToServers() {
